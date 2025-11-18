@@ -1,142 +1,113 @@
-// Configurações
+// Simple configuration
 let apiUrl = localStorage.getItem("apiUrl") || "http://192.168.1.100:1337";
 let updateInterval =
   parseInt(localStorage.getItem("updateInterval") || "2") * 1000;
 let intervalId = null;
 
-// Dados do gráfico
-const chartData = {
-  labels: [],
-  pm25Data: [],
-  pm10Data: [],
-};
-const maxDataPoints = 20;
-
-// Inicializar gráfico
-const ctx = document.getElementById("chartPM").getContext("2d");
-const chart = new Chart(ctx, {
-  type: "line",
-  data: {
-    labels: chartData.labels,
-    datasets: [
-      {
-        label: "PM 2.5",
-        data: chartData.pm25Data,
-        borderColor: "rgb(59, 130, 246)",
-        backgroundColor: "rgba(59, 130, 246, 0.1)",
-        tension: 0.4,
-        fill: true,
-      },
-      {
-        label: "PM 10",
-        data: chartData.pm10Data,
-        borderColor: "rgb(168, 85, 247)",
-        backgroundColor: "rgba(168, 85, 247, 0.1)",
-        tension: 0.4,
-        fill: true,
-      },
-    ],
-  },
-  options: {
-    responsive: true,
-    maintainAspectRatio: true,
-    plugins: {
-      legend: {
-        display: true,
-        position: "top",
-      },
-    },
-    scales: {
-      y: {
-        beginAtZero: true,
-        title: {
-          display: true,
-          text: "µg/m³",
-        },
-      },
-      x: {
-        title: {
-          display: true,
-          text: "Tempo",
-        },
-      },
-    },
-  },
-});
-
-// Carregar configurações
+// Load settings
 document.getElementById("apiUrl").value = apiUrl;
 document.getElementById("updateInterval").value = updateInterval / 1000;
 
-// Função para determinar qualidade do ar
-function getQuality(pm25) {
-  if (pm25 <= 12)
-    return { class: "bg-green-100 text-green-800", text: "✓ Boa" };
-  if (pm25 <= 35)
-    return { class: "bg-yellow-100 text-yellow-800", text: "⚠ Moderada" };
-  if (pm25 <= 55)
-    return { class: "bg-orange-100 text-orange-800", text: "⚠ Ruim" };
-  return { class: "bg-red-100 text-red-800", text: "✕ Péssima" };
+// Utility functions
+function getSmokeStatus(smokeValue) {
+  if (smokeValue < 1050)
+    return {
+      status: "Normal",
+      color: "text-green-400",
+      progress: (smokeValue / 4095) * 100,
+    };
+  if (smokeValue < 2047.5)
+    return {
+      status: "Elevado",
+      color: "text-yellow-400",
+      progress: (smokeValue / 4095) * 100,
+    };
+  return {
+    status: "Alto",
+    color: "text-red-400",
+    progress: (smokeValue / 4095) * 100,
+  };
 }
 
-// Atualizar dados
+function getTempFeelsLike(temp) {
+  if (temp < 18) return "Frio";
+  if (temp < 24) return "Confortável";
+  if (temp < 28) return "Quente";
+  return "Muito Quente";
+}
+
+function getHumidityLevel(humidity) {
+  if (humidity < 30) return "Seco";
+  if (humidity < 60) return "Confortável";
+  if (humidity < 70) return "Moderado";
+  return "Úmido";
+}
+
+// Update data function
 async function updateData() {
   try {
     const response = await fetch(`${apiUrl}/data`);
     const data = await response.json();
 
-    // Atualizar valores
-    document.getElementById("pm25").textContent = data.pm25.toFixed(1);
-    document.getElementById("pm10").textContent = data.pm10.toFixed(1);
-    document.getElementById("temp").textContent = data.temperature.toFixed(1);
-    document.getElementById("humidity").textContent = data.humidity.toFixed(0);
+    // Update temperature
+    const temp = data.temperature || 0;
+    document.getElementById("temp").textContent = temp.toFixed(1) + "°C";
+    document.getElementById("tempFeels").textContent = getTempFeelsLike(temp);
 
-    // Atualizar qualidade
-    const pm25Quality = getQuality(data.pm25);
-    const pm25Elem = document.getElementById("pm25Quality");
-    pm25Elem.className = `px-4 py-2 rounded-lg text-center font-semibold text-sm ${pm25Quality.class}`;
-    pm25Elem.textContent = pm25Quality.text;
-
-    const pm10Quality = getQuality(data.pm10);
-    const pm10Elem = document.getElementById("pm10Quality");
-    pm10Elem.className = `px-4 py-2 rounded-lg text-center font-semibold text-sm ${pm10Quality.class}`;
-    pm10Elem.textContent = pm10Quality.text;
-
-    // Atualizar status
-    document.getElementById("statusDot").className =
-      "w-3 h-3 bg-green-400 rounded-full pulse-online";
-    document.getElementById("statusText").textContent = "Online";
-
-    // Atualizar timestamp
-    document.getElementById("lastUpdate").textContent =
-      new Date().toLocaleTimeString("pt-BR");
-
-    // Atualizar gráfico
-    const time = new Date().toLocaleTimeString("pt-BR", {
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-    chartData.labels.push(time);
-    chartData.pm25Data.push(data.pm25);
-    chartData.pm10Data.push(data.pm10);
-
-    // Limitar pontos do gráfico
-    if (chartData.labels.length > maxDataPoints) {
-      chartData.labels.shift();
-      chartData.pm25Data.shift();
-      chartData.pm10Data.shift();
+    // Update smoke
+    const smoke = data.smoke || 0;
+    document.getElementById("smoke").textContent = smoke.toFixed(0);
+    const smokeStatus = getSmokeStatus(smoke);
+    document.getElementById("smokeStatus").textContent = smokeStatus.status;
+    document.getElementById(
+      "smokeStatus"
+    ).className = `text-sm font-medium ${smokeStatus.color}`;
+    const smokeQuality = document.getElementById("smokeQuality");
+    if (smokeQuality) {
+      smokeQuality.textContent = smokeStatus.status;
+      smokeQuality.className = `px-3 py-1 rounded-full text-xs font-medium ${
+        smokeStatus.status === "Normal"
+          ? "bg-green-500/20 text-green-400"
+          : smokeStatus.status === "Elevado"
+          ? "bg-yellow-500/20 text-yellow-400"
+          : "bg-red-500/20 text-red-400"
+      }`;
     }
 
-    chart.update();
+    // Update humidity
+    const humidity = data.humidity || 0;
+    document.getElementById("humidity").textContent = humidity.toFixed(0) + "%";
+    document.getElementById("humidityLevel").textContent =
+      getHumidityLevel(humidity);
+
+    // Update status
+    const statusDot = document.querySelector("#connectionStatus .w-2");
+    if (statusDot) {
+      statusDot.className = "w-2 h-2 bg-green-400 rounded-full pulse-online";
+    }
+    document.getElementById("statusText").textContent = "Conectado";
+    document.getElementById("statusText").className = "text-gray-400 text-sm";
+
+    // Update timestamps
+    const now = new Date();
+    const timeString = now.toLocaleTimeString("pt-BR", {
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+    });
+    document.getElementById("lastUpdate").textContent = timeString;
   } catch (error) {
     console.error("Erro ao buscar dados:", error);
-    document.getElementById("statusDot").className =
-      "w-3 h-3 bg-red-400 rounded-full";
-    document.getElementById("statusText").textContent = "Erro de conexão";
+    const statusDot = document.querySelector("#connectionStatus .w-2");
+    if (statusDot) {
+      statusDot.className = "w-2 h-2 bg-red-400 rounded-full pulse-offline";
+    }
+    document.getElementById("statusText").textContent = "Erro de Conexão";
+    document.getElementById("statusText").className = "text-red-400 text-sm";
   }
 }
 
-// Aplicar configurações
+// Apply settings
 function applySettings() {
   apiUrl = document.getElementById("apiUrl").value;
   updateInterval =
@@ -145,13 +116,24 @@ function applySettings() {
   localStorage.setItem("apiUrl", apiUrl);
   localStorage.setItem("updateInterval", updateInterval / 1000);
 
-  // Reiniciar intervalo
+  // Restart interval
   if (intervalId) clearInterval(intervalId);
   intervalId = setInterval(updateData, updateInterval);
 
-  alert("✓ Configurações aplicadas com sucesso!");
+  // Show confirmation
+  const button = event.target;
+  const originalText = button.textContent;
+  button.textContent = "✓ Configurações Salvas!";
+  button.classList.remove("bg-blue-500", "hover:bg-blue-600");
+  button.classList.add("bg-green-500", "hover:bg-green-600");
+
+  setTimeout(() => {
+    button.textContent = originalText;
+    button.classList.remove("bg-green-500", "hover:bg-green-600");
+    button.classList.add("bg-blue-500", "hover:bg-blue-600");
+  }, 2000);
 }
 
-// Iniciar atualização automática
+// Initialize
 intervalId = setInterval(updateData, updateInterval);
 updateData();
