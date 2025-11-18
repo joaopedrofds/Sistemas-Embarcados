@@ -22,8 +22,8 @@
 #define LED_B 19
 #define LED_G 21
 
-#define DHTTYPE DHT11
 #define DHT_PIN 32
+#define DHTTYPE DHT11
 
 #define BROKER_TOPIC_MQ2 "failsafe/mq2"
 #define BROKER_TOPIC_DHT11_TEMP "failsafe/dht11/t"
@@ -36,13 +36,12 @@ WiFi / Broker Settings
 void wifiConnect(const char* ssid, const char* password);
 void brokerConnect(const char* broker_ssid, const int broker_port);
 
-const char* ssid = "uaifai-apolo";
+const char* ssid = "uaifai-tiradentes";
 const char* password = "bemvindoaocesar";
 
-const char* broker_ssid = "PLACEHOLDER";
+const char* broker_ssid = "172.26.69.78";
 const int broker_port = 1883;
-const char* broker_username = "PLACEHOLDER";
-const char* broker_password = "PLACEHOLDER";  
+
 
 WiFiClient espClient;
 PubSubClient client(espClient);
@@ -75,10 +74,7 @@ Setup
 */
 void setup() {
   Serial.begin(115200);
-
-  wifiConnect(ssid, password);
-  brokerConnect(broker_ssid, broker_port);
-
+  
   pinMode(LED_B, OUTPUT);
   pinMode(LED_G, OUTPUT);
   pinMode(LED_R, OUTPUT);
@@ -93,47 +89,77 @@ void setup() {
 
   dht.begin();
   
-  BaseType_t xReturned;
-  xReturned = xTaskCreate(vTaskLed, "TASK_LED", 4096, NULL, 1, &taskLedkHandle);
-  xReturned = xTaskCreate(vTaskMQ2, "TASK_MQ2", 4096, NULL, 2, &taskMQ2Handle);
-  xReturned = xTaskCreate(vTaskDHT11, "TASK_DHT11", 4096, NULL, 2, &taskDHTHandle);
-  xReturned = xTaskCreate(vTaskExhaust, "TASK_EXHAUST", 4096, NULL, 10, &taskExhaustHandle);
+  wifiConnect(ssid, password);
+  client.setServer(broker_ssid, broker_port);
+  brokerConnect(broker_ssid, broker_port);
 
   queueMQ2Handle = xQueueCreate(1, sizeof(float));
   queueTEMPHandle = xQueueCreate(1, sizeof(float));
   queueHUMHandle = xQueueCreate(1, sizeof(float));
+  
+  BaseType_t xReturned;
+  xReturned = xTaskCreate(vTaskMQ2, "TASK_MQ2", 4096, NULL, 2, &taskMQ2Handle);
+  xReturned = xTaskCreate(vTaskDHT11, "TASK_DHT11", 4096, NULL, 2, &taskDHTHandle);
+  xReturned = xTaskCreate(vTaskLed, "TASK_LED", 4096, NULL, 1, &taskLedkHandle);
+  xReturned = xTaskCreate(vTaskExhaust, "TASK_EXHAUST", 4096, NULL, 10, &taskExhaustHandle);
 }
 
 
 void loop() {
   wifiConnect(ssid, password);
   brokerConnect(broker_ssid, broker_port);
-  vTaskDelay(pdMS_TO_TICKS(50));
+  
+  if (client.connected())
+  {
+    client.loop();
+  }
+  
+
+  vTaskDelay(pdMS_TO_TICKS(150));
 }
 
 
 void wifiConnect(const char* ssid, const char* password)
 {
   if (WiFi.status() == WL_CONNECTED) { return; }
-
+  
+  Serial.print("Connecting to WiFi . ");
+  
   WiFi.mode(WIFI_STA);
   WiFi.begin(ssid, password);
   
-  Serial.println("Connecting to WiFi . ");
   while (WiFi.status() != WL_CONNECTED  )
   {
-    vTaskDelay(pdMS_TO_TICKS(500));
+    vTaskDelay(pdMS_TO_TICKS(1000));
     Serial.print(". ");
   }
 
-  Serial.printf("\n\t!!! WiFi Connected @ %s !!!\n", WiFi.localIP().toString().c_str());
+  Serial.printf("\n\tWiFi Connected @ %s\n", ssid);
 } 
 
 
 void brokerConnect(const char* broker_ssid, const int broker_port) 
 {
-  Serial.println("\t!!! FAÇA O CODIGO DE CONEXAO COM O BROKER. . . !!!");
-}
+  if (client.connected()) { return; }
+  if (WiFi.status() != WL_CONNECTED) { return; }
+  
+
+  client.setServer(broker_ssid, broker_port);
+  Serial.print("Connecting to MQTT Broker... ");
+  
+  // Cria um ID aleatório para não conflitar
+  String clientId = "ESP32Client-";
+  clientId += String(random(0xffff), HEX);
+
+  if (client.connect(clientId.c_str())) {
+    Serial.println("Connected!");
+  } else {
+    Serial.print("Failed, rc=");
+    Serial.print(client.state());
+    Serial.println(" try again in 5 seconds");
+    // Não use delay bloqueante aqui se possível, mas no loop principal já tem controle
+  }
+} 
 
 
 void vTaskMQ2(void *param)
@@ -145,6 +171,11 @@ void vTaskMQ2(void *param)
     mq2 = analogRead(MQ2_PIN);
     
     xQueueOverwrite(queueMQ2Handle, &mq2);
+    
+    if (client.connected())
+    {
+      client.publish(BROKER_TOPIC_MQ2, String(mq2).c_str(), true);
+    }
     
     vTaskDelay(pdMS_TO_TICKS(2000));
   }
@@ -164,6 +195,12 @@ void vTaskDHT11(void *param)
     xQueueOverwrite(queueTEMPHandle, &t);
     xQueueOverwrite(queueHUMHandle, &h);
     
+    if (client.connected()) 
+    {
+      client.publish(BROKER_TOPIC_DHT11_TEMP, String(t).c_str(), true);
+      client.publish(BROKER_TOPIC_DHT11_HUMI, String(h).c_str(), true);
+    }
+
     vTaskDelay(pdMS_TO_TICKS(2000));
   }
 }
@@ -199,7 +236,7 @@ void vTaskLed(void *param)
 
     Serial.print("[MQ-2] -- ");
     Serial.print(mq2Value);
-    Serial.println(" ppm");
+    Serial.println(" adc");
 
     Serial.print("[TEMP] -- ");
     Serial.print(tempValue);
