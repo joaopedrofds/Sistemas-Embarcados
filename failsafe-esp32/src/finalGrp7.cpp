@@ -25,6 +25,9 @@
 #define BROKER_TOPIC_DHT11_TEMP "failsafe/dht11/t"
 #define BROKER_TOPIC_DHT11_HUMI "failsafe/dht11/h"
 
+/*
+  Wi-fi / Broker Settings
+*/
 const char* ssid = "uaifai-tiradentes";
 const char* password = "bemvindoaocesar";
 
@@ -40,6 +43,9 @@ void vTaskMQ2(void *param);
 void vTaskDHT11(void *param);
 void vTaskLed(void *param);
 void vTaskExhaust(void *param);
+void wifiConnect(const char* ssid, const char* password);
+void brokerConnect();
+
 
 Servo servo;
 DHT dht(DHT_PIN, DHTTYPE);
