@@ -157,6 +157,69 @@
             </div>
         </div>
         
+        <!-- Seção de Gráficos -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            <!-- Gráfico de Fumaça (MQ2) -->
+            <div class="glass-effect rounded-xl p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 bg-red-500/10 rounded-lg flex items-center justify-center">
+                            <svg class="w-5 h-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z" />
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-semibold text-white">Histórico de Fumaça</h3>
+                            <p class="text-sm text-gray-400">Últimas leituras do sensor MQ2</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="h-64">
+                    <canvas id="smokeChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Gráfico de Temperatura -->
+            <div class="glass-effect rounded-xl p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 bg-blue-500/10 rounded-lg flex items-center justify-center">
+                            <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-semibold text-white">Histórico de Temperatura</h3>
+                            <p class="text-sm text-gray-400">Últimas leituras do sensor DHT11</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="h-64">
+                    <canvas id="tempChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Gráfico de Umidade (largura completa) -->
+        <div class="glass-effect rounded-xl p-6 mb-8">
+            <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-cyan-500/10 rounded-lg flex items-center justify-center">
+                        <svg class="w-5 h-5 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-semibold text-white">Histórico de Umidade</h3>
+                        <p class="text-sm text-gray-400">Últimas leituras do sensor DHT11</p>
+                    </div>
+                </div>
+            </div>
+            <div class="h-64">
+                <canvas id="humidityChart"></canvas>
+            </div>
+        </div>
+        
         <div class="glass-effect rounded-xl p-6 text-center text-gray-400 text-sm">
             <p>Conectado ao HiveMQ Cloud via WebSockets (Porta 8884)</p>
             <p class="mt-2 text-xs">Tópicos: failsafe/mq2, failsafe/dht11/t, failsafe/dht11/h</p>
