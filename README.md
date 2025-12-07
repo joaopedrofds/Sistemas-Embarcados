@@ -86,10 +86,10 @@ Sistemas-Embarcados/
 
 |   Contribuidor | Github |
 | ------ | ------ |
-| **JOÃO PEDRO ARAÚJO**                    |   @joaopedrofds |  
-| **MARIA JULIA PESSOA CUNHA**             |   @             |  
-| **ROBERTO ALMEIDA BURLAMAQUE CATUNDA**   |   @grutex       |  
-| **VINÍCIUS DE MELO VENTURA**             |   @vinivent     |  
+| **JOÃO PEDRO ARAÚJO**                    |   @joaopedrofds    |  
+| **MARIA JULIA PESSOA CUNHA**             |   @mariajuliapessoa|  
+| **ROBERTO ALMEIDA BURLAMAQUE CATUNDA**   |   @grutex          |  
+| **VINÍCIUS DE MELO VENTURA**             |   @vinivent        |  
 
 ## 📝 Licença
 
