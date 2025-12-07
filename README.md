@@ -4,7 +4,7 @@ Sistema embarcado de monitoramento em tempo real de qualidade do ar utilizando E
 
 ## 📋 Descrição
 
-O FailSafe é um sistema de monitoramento que coleta dados de sensores ambientais (fumaça/gás, temperatura e umidade) através de um ESP32 e os transmite via MQTT para uma interface web em tempo real. O sistema utiliza FreeRTOS para gerenciamento de múltiplas tarefas e HiveMQ Cloud como broker MQTT.
+O FailSafe é um sistema de monitoramento que coleta dados de sensores ambientais (fumaça/gás, temperatura e umidade) com a finalidade de monitoramento 24/7 para ambientes clínicos e insalubres. Através de um ESP32, os dados são coletados e transmitidos via MQTT para uma interface web em tempo real. O sistema utiliza FreeRTOS para gerenciamento de múltiplas tarefas e HiveMQ Cloud como broker MQTT.
 
 ## 🛠️ Tecnologias
 
