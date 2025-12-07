@@ -28,7 +28,7 @@ O FailSafe é um sistema de monitoramento que coleta dados de sensores ambientai
 Sistemas-Embarcados/
 ├── failsafe-esp32/          # Firmware ESP32
 │   ├── src/
-│   │   └── finalGrp7.cpp    # Código principal
+│   │   └── failsafe.cpp    # Código principal
 │   └── platformio.ini       # Configuração PlatformIO
 ├── client/                   # Interface web
 │   ├── index.html           # Página principal
