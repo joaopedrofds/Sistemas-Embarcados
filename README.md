@@ -56,7 +56,7 @@ Sistemas-Embarcados/
 
 ## 📡 Tópicos MQTT
 
-- `failsafe/mq2` - Dados do sensor MQ2 (valor ADC)
+- `failsafe/mq2` - Dados do sensor MQ2 (ppm)
 - `failsafe/dht11/t` - Temperatura do DHT11 (°C)
 - `failsafe/dht11/h` - Umidade do DHT11 (%)
 
