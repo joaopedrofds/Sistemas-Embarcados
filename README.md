@@ -1,4 +1,4 @@
-# FailSafe - Sistema de Monitoramento de Qualidade do Ar
+# FailSafe - Sistema de Monitoramento de Qualidade do Ar e Temperatura
 
 Sistema embarcado de monitoramento em tempo real de qualidade do ar utilizando ESP32, sensores MQ2 e DHT11, com interface web para visualização dos dados via MQTT.
 
