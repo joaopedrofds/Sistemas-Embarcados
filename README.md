@@ -82,12 +82,12 @@ Sistemas-Embarcados/
 2. A interface se conectará automaticamente ao broker MQTT configurado
 3. Os dados serão exibidos em tempo real conforme recebidos
 
-## 👥 Contribuidores
+## 👥 Contribuidores & Github
 
-- **MARIA JULIA PESSOA CUNHA**
-- **JOÃO PEDRO ARAÚJO**
-- **ROBERTO ALMEIDA BURLAMAQUE CATUNDA**
-- **VINÍCIUS DE MELO VENTURA**
+- **MARIA JULIA PESSOA CUNHA**             |   @
+- **JOÃO PEDRO ARAÚJO**                    |   @
+- **ROBERTO ALMEIDA BURLAMAQUE CATUNDA**   |   @grutex
+- **VINÍCIUS DE MELO VENTURA**             |   @
 
 ## 📝 Licença
 
